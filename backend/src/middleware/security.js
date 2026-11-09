@@ -33,7 +33,7 @@ export const corsOptions = {
 // be blocked by CORS - they're same-origin by nature.
 export function applySecurity(app) {
   app.set("trust proxy", 1);
-  app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+  app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" }, contentSecurityPolicy: false }));
   app.use(compression());
   app.use(cookieParser());
   app.use(express.json({ limit: "1mb" }));

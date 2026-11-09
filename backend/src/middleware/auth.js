@@ -5,7 +5,10 @@ import { normalizeRole } from "../constants/roles.js";
 
 export async function protect(req, res, next) {
   try {
-    const token = req.cookies?.access_token;
+    const bearer = req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.slice(7).trim()
+      : null;
+    const token = req.cookies?.access_token || bearer;
     if (!token) throw new ApiError(401, "Authentication required");
 
     let payload;

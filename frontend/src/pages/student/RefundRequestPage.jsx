@@ -31,20 +31,25 @@ export default function RefundRequestPage() {
     e.preventDefault();
     try {
       await create(form).unwrap();
-      toast.success("Refund request submitted");
+      toast.success("Refund request submitted successfully");
       setShowForm(false);
       setForm({ fromDate: today, toDate: today, affectedCategories: ["lunch"], reason: "" });
       refetch();
-    } catch (err) { toast.error(err?.data?.message || "Failed"); }
+    } catch (err) {
+      const errMsg = err?.data?.errors?.map((e) => (typeof e === "string" ? e : `${e.field ? e.field + ": " : ""}${e.message}`)).join("; ");
+      toast.error(errMsg || err?.data?.message || "Failed to submit request");
+    }
   };
 
   const handleCancel = async (id) => {
     if (!confirm("Cancel this refund request?")) return;
     try {
       await cancel(id).unwrap();
-      toast.success("Cancelled");
+      toast.success("Refund request cancelled");
       refetch();
-    } catch (err) { toast.error(err?.data?.message || "Failed"); }
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to cancel request");
+    }
   };
 
   const icon = (s) => {
@@ -83,7 +88,18 @@ export default function RefundRequestPage() {
               ))}
             </div>
           </label>
-          <label><span>Reason</span><textarea required rows="2" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} placeholder="Why do you need a refund?" /></label>
+          <label>
+            <span>Reason (min 5 characters)</span>
+            <textarea
+              required
+              minLength={5}
+              maxLength={1000}
+              rows="3"
+              value={form.reason}
+              onChange={(e) => setForm({ ...form, reason: e.target.value })}
+              placeholder="Why do you need a refund? (e.g. Traveling home for festival, academic workshop)..."
+            />
+          </label>
           <button type="submit" className="btn-primary" disabled={creating}>{creating ? "Submitting..." : "Submit Request"}</button>
         </form>
       )}

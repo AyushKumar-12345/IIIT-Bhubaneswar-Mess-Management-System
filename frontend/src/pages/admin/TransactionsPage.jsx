@@ -33,7 +33,7 @@ export default function TransactionsPage() {
       </header>
 
       <section className="stat-grid">
-        <div className="stat-card" style={{ borderLeft: "3px solid #0e7c66" }}>
+        <div className="stat-card" style={{ borderLeft: "4px solid var(--luxury-gold)" }}>
           <span>Total received</span>
           <strong>Rs. {totalReceived}</strong>
           <small>{payments.length} payments</small>
@@ -49,7 +49,7 @@ export default function TransactionsPage() {
       {tab === "payments" && (
         loadingP ? <p>Loading...</p> : payments.length === 0 ? (
           <div className="card" style={{ textAlign: "center", padding: 40 }}>
-            <TrendingUp size={32} color="#64748b" style={{ margin: "0 auto 10px" }} />
+            <TrendingUp size={32} color="var(--luxury-gold-dark)" style={{ margin: "0 auto 10px" }} />
             <p className="muted">No payments yet. Students pay from their Bills page.</p>
           </div>
         ) : (

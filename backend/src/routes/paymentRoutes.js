@@ -15,9 +15,6 @@ router.post("/initiate", protect, authorize("student"), validate(initiatePayment
 // My payments
 router.get("/my", protect, authorize("student"), ctrl.my);
 
-// Detail
-router.get("/:id", protect, ctrl.detail);
-
 // All payments (admin/warden)
 router.get("/", protect, authorize("mess_committee", "admin"), ctrl.all);
 

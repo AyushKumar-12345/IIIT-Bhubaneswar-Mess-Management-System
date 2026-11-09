@@ -36,6 +36,19 @@ let shuttingDown = false;
 async function start() {
   await connectDB();
 
+  // Auto-seed if database is empty (ensures zero-config startup!)
+  try {
+    const { User } = await import("./models/User.js");
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      console.log("[server] Empty database detected. Auto-seeding initial data...");
+      const { seedDatabase } = await import("../scripts/seed.js");
+      await seedDatabase();
+    }
+  } catch (err) {
+    console.error("[server] Auto-seed check failed:", err.message);
+  }
+
   // Startup migration: backfill requestType on leave records
   try {
     const { migrateRequestTypes } = await import("./services/leaveService.js");
@@ -52,7 +65,7 @@ async function start() {
   initSocket(server);
 
   server.listen(env.PORT, () => {
-    console.log(`[server] MESSMATE API listening on http://localhost:${env.PORT}`);
+    console.log(`[server] IIIT Bhubaneswar Mess Management API listening on http://localhost:${env.PORT}`);
     console.log(`[server] Serving frontend from ${frontendDist}`);
   });
 }

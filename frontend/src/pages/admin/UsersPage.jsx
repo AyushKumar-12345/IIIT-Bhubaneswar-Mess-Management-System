@@ -27,7 +27,8 @@ export default function UsersPage() {
     { value: "active", label: "Active" },
     { value: "suspended", label: "Suspended" },
     { value: "student", label: "Students" },
-    { value: "mess_committee", label: "Admins" },
+    { value: "mess_committee", label: "Mess Secretary" },
+    { value: "admin", label: "Admin" },
     { value: "staff", label: "Staff" }
   ];
 

@@ -1,27 +1,33 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useMeQuery, useTodayMenuQuery, useListAnnouncementsQuery, useUpcomingMenusQuery, useRunningBillQuery, useGroundFloorInfoQuery } from "../../app/api.js";
-import { Megaphone, Clock, Calendar, ArrowRight, Building2, Check, IndianRupee } from "lucide-react";
-
-const VISUALS = {
-  breakfast: { bg: "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)", color: "#78350f" },
-  lunch: { bg: "linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%)", color: "#065f46" },
-  snacks: { bg: "linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)", color: "#1e3a8a" },
-  dinner: { bg: "linear-gradient(135deg, #ede9fe 0%, #c4b5fd 100%)", color: "#4c1d95" }
-};
+import { toast } from "sonner";
+import {
+  useMeQuery,
+  useTodayMenuQuery,
+  useListAnnouncementsQuery,
+  useUpcomingMenusQuery,
+  useRunningBillQuery,
+  useGroundFloorInfoQuery,
+  useMyNotificationsQuery,
+  useMyAttendanceQuery
+} from "../../app/api.js";
+import { Megaphone, Clock, Calendar, ArrowRight, Building2, Check, IndianRupee, Egg, Utensils, Coffee, Moon, Sparkles, Bell } from "lucide-react";
+import { getMealVisual } from "../../constants/mealVisuals.js";
 
 const MEAL_LABELS = { breakfast: "Breakfast", lunch: "Lunch", snacks: "Snacks", dinner: "Dinner" };
 
 export default function DashboardPage() {
   const [upcomingPage, setUpcomingPage] = useState(1);
-  const { data: me } = useMeQuery();
-  const { data: today, isLoading } = useTodayMenuQuery();
-  const { data: annData } = useListAnnouncementsQuery();
-  const { data: upcomingData } = useUpcomingMenusQuery({ page: upcomingPage, limit: 3, days: 30 });
+  const { data: me, refetch: refetchMe } = useMeQuery();
+  const { data: today, isLoading, refetch: refetchToday } = useTodayMenuQuery();
+  const { data: annData, refetch: refetchAnn } = useListAnnouncementsQuery();
+  const { data: upcomingData, refetch: refetchUpcoming } = useUpcomingMenusQuery({ page: upcomingPage, limit: 3, days: 30 });
   const isStudent = me?.data?.user?.role === "student";
   const isGroundFloor = me?.data?.user?.messSystem === "ground_floor";
-  const { data: runningData } = useRunningBillQuery(undefined, { skip: !isStudent || isGroundFloor });
-  const { data: gfData } = useGroundFloorInfoQuery(undefined, { skip: !isGroundFloor });
+  const { data: runningData, refetch: refetchRunning } = useRunningBillQuery(undefined, { skip: !isStudent || isGroundFloor });
+  const { data: gfData, refetch: refetchGf } = useGroundFloorInfoQuery(undefined, { skip: !isGroundFloor });
+  const { data: notifData, refetch: refetchNotifs } = useMyNotificationsQuery(undefined, { skip: !isStudent });
+  const { data: attendanceData, refetch: refetchAtt } = useMyAttendanceQuery(undefined, { skip: !isStudent });
 
   const user = me?.data?.user;
   const ctx = user?.context || {};
@@ -31,37 +37,48 @@ export default function DashboardPage() {
   const runningBill = runningData?.data?.bill;
   const groundFloor = gfData?.data;
 
+  // Real-time unread notification calculation
+  const notifications = notifData?.data?.notifications || [];
+  const unreadNotifs = notifications.filter((n) => !n.readAt).length;
+  const unreadCount = notifData ? unreadNotifs : (ctx.unreadNotifications ?? 0);
+
+  // Real-time verified attendance count
+  const attendances = attendanceData?.data?.attendance || [];
+  const attendanceCount = attendanceData ? attendances.length : (ctx.attendanceThisMonth ?? 0);
+
   return (
     <div className="page">
       <header className="page-header">
-        <h1>Welcome, {user?.name?.split(" ")[0] || "there"}</h1>
-        <p className="muted">
-          {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-          {user?.hostel && <> - {user.hostel.name} - Room {user.roomNumber}</>}
-        </p>
+        <div>
+          <h1>Welcome, {user?.name?.split(" ")[0] || "there"}</h1>
+          <p className="muted">
+            {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+            {user?.hostel && <> · {user.hostel.name} · Room {user.roomNumber}</>}
+          </p>
+        </div>
       </header>
 
       {/* Ground floor enrollment card */}
       {isGroundFloor && groundFloor && (
-        <div className="card" style={{ marginBottom: 24, borderLeft: "3px solid #a06800", background: "rgba(245,185,66,0.05)" }}>
+        <div className="card" style={{ marginBottom: 24, borderLeft: "4px solid var(--luxury-gold)", background: "var(--bg-card)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <Building2 size={20} color="#a06800" />
-                <strong style={{ fontSize: 15, color: "#a06800" }}>Ground Floor Semester Plan</strong>
+                <Building2 size={20} color="var(--royal-navy)" />
+                <strong style={{ fontSize: 16, color: "var(--text-primary)" }}>Ground Floor Semester Plan</strong>
               </div>
               {groundFloor.enrollment ? (
                 <>
-                  <p style={{ margin: "4px 0", fontSize: 13, color: "#475569" }}>
+                  <p style={{ margin: "4px 0", fontSize: 13, color: "var(--text-secondary)" }}>
                     <strong>Meals:</strong> {groundFloor.enrollment.meals.map((m) => MEAL_LABELS[m]).join(", ")}
                   </p>
-                  <p style={{ margin: "4px 0", fontSize: 13, color: "#475569" }}>
+                  <p style={{ margin: "4px 0", fontSize: 13, color: "var(--text-secondary)" }}>
                     <strong>Semester:</strong> {new Date(groundFloor.enrollment.semesterStart).toLocaleDateString("en-IN")} to {new Date(groundFloor.enrollment.semesterEnd).toLocaleDateString("en-IN")}
                   </p>
-                  <p style={{ margin: "4px 0", fontSize: 13, color: "#475569" }}>
-                    <strong>Paid:</strong> <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}><IndianRupee size={12} /> {groundFloor.enrollment.amount}</span>
+                  <p style={{ margin: "4px 0", fontSize: 13, color: "var(--text-secondary)" }}>
+                    <strong>Paid:</strong> <span style={{ display: "inline-flex", alignItems: "center", gap: 2, fontWeight: 700, color: "var(--royal-navy)" }}><IndianRupee size={12} /> {groundFloor.enrollment.amount}</span>
                   </p>
-                  <p style={{ margin: "4px 0", fontSize: 12, color: "#64748b" }}>
+                  <p style={{ margin: "4px 0", fontSize: 12, color: "var(--text-muted)" }}>
                     Enrolled on {new Date(groundFloor.enrollment.paidAt).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
                   </p>
                 </>
@@ -70,10 +87,10 @@ export default function DashboardPage() {
               )}
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <Link to="/ground-floor/enroll" className="btn-primary" style={{ textDecoration: "none", background: "#a06800", padding: "8px 16px", fontSize: 13 }}>
+              <Link to="/ground-floor/enroll" className="btn-primary" style={{ textDecoration: "none", background: "var(--royal-navy)", color: "#ffffff", padding: "8px 16px", fontSize: 13 }}>
                 View Pass
               </Link>
-              <Link to="/menu" className="btn-small" style={{ textDecoration: "none", background: "#64748b" }}>
+              <Link to="/menu" className="btn-small" style={{ textDecoration: "none", background: "var(--bg-card)", color: "var(--text-primary)", border: "1px solid var(--border-color)" }}>
                 View menu
               </Link>
             </div>
@@ -84,14 +101,28 @@ export default function DashboardPage() {
       {/* Stats - 1st floor shows bill, ground floor shows enrollment */}
       {isStudent && !isGroundFloor && (
         <section className="stat-grid">
-          <div className="stat-card" style={{ borderLeft: "3px solid #0e7c66" }}>
+          <div className="stat-card" style={{ borderLeft: "4px solid var(--luxury-gold)" }}>
             <span>This month (live)</span>
             <strong>Rs. {runningBill?.total ?? 0}</strong>
             <small>Updates on registration</small>
           </div>
-          <div className="stat-card"><span>Meals this month</span><strong>{ctx.attendanceThisMonth ?? 0}</strong></div>
-          <div className="stat-card"><span>Current bill</span><strong>Rs. {ctx.currentBill?.total ?? 0}</strong><small>{ctx.currentBill?.status || "Not generated"}</small></div>
-          <div className="stat-card"><span>Notifications</span><strong>{ctx.unreadNotifications ?? 0}</strong></div>
+          <div className="stat-card">
+            <span>Meals this month</span>
+            <strong>{attendanceCount}</strong>
+            <small>Verified attendances</small>
+          </div>
+          <div className="stat-card">
+            <span>Current bill</span>
+            <strong>Rs. {runningBill?.total ?? ctx.currentBill?.total ?? 0}</strong>
+            <small>{runningBill?.outstanding > 0 ? `Rs. ${runningBill.outstanding} pending` : "Fully cleared"}</small>
+          </div>
+          <div className="stat-card">
+            <span>Notifications</span>
+            <strong style={{ color: unreadCount > 0 ? "var(--luxury-gold-dark)" : "var(--royal-navy)" }}>
+              {unreadCount}
+            </strong>
+            <small>{unreadCount > 0 ? `${unreadCount} unread alert${unreadCount > 1 ? "s" : ""}` : "All caught up"}</small>
+          </div>
         </section>
       )}
 
@@ -106,24 +137,71 @@ export default function DashboardPage() {
           ) : (
             <div className="meal-grid">
               {sessions.map((s) => {
-                const visual = VISUALS[s.category] || VISUALS.lunch;
+                const visual = getMealVisual(s.category);
+                const isRegistered = s.myRegistration?.status === "registered";
+                const isAttended = s.myRegistration?.status === "attended";
                 return (
-                  <div key={s._id} className="meal-card" style={{ padding: 0, overflow: "hidden" }}>
-                    <div className="meal-card-visual" style={{ background: visual.bg }} />
-                    <div style={{ padding: 16 }}>
-                      <h3 style={{ textTransform: "capitalize", margin: "0 0 4px" }}>{s.category}</h3>
-                      <p className="muted meal-time" style={{ margin: "0 0 8px" }}><Clock size={13} /> {s.startTime} - {s.endTime}</p>
+                  <div key={s._id} className="meal-card" style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                    <div className="meal-card-visual">
+                      <img
+                        src={visual.image}
+                        alt={visual.label}
+                        className="meal-card-img"
+                        onError={(e) => { e.currentTarget.src = visual.fallbackUrl; }}
+                      />
+                      <div className="meal-card-overlay">
+                        <span className="meal-badge-floating">
+                          {s.category === "breakfast" && <Egg size={12} />}
+                          {s.category === "lunch" && <Utensils size={12} />}
+                          {s.category === "snacks" && <Coffee size={12} />}
+                          {s.category === "dinner" && <Moon size={12} />}
+                          {visual.label}
+                        </span>
+                        <span className="meal-badge-time">
+                          <Clock size={11} /> {s.startTime} - {s.endTime}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ padding: 16, display: "flex", flexDirection: "column", flex: 1 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                        <h3 style={{ textTransform: "capitalize", margin: 0, fontSize: 16, fontWeight: 800, color: "var(--royal-navy)" }}>
+                          {s.category}
+                        </h3>
+                        {s.unitPrice > 0 && !isGroundFloor && (
+                          <span style={{ fontSize: 13, fontWeight: 800, color: "var(--luxury-gold-dark)" }}>
+                            Rs. {s.unitPrice}
+                          </span>
+                        )}
+                      </div>
                       {s.items && s.items.length > 0 && (
-                        <ul className="meal-items">
-                          {s.items.slice(0, 3).map((item, i) => <li key={i}>{item.name}</li>)}
-                          {s.items.length > 3 && <li className="muted">+{s.items.length - 3} more</li>}
+                        <ul className="meal-items" style={{ margin: "6px 0 14px", flex: 1 }}>
+                          {s.items.slice(0, 3).map((item, i) => (
+                            <li key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5, fontStyle: "normal", color: "var(--text-secondary)", fontSize: 12.5 }}>
+                              {item.dietary === "non_veg" ? (
+                                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#dc2626", flexShrink: 0 }} title="Non-Veg" />
+                              ) : (
+                                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#16a34a", flexShrink: 0 }} title="Pure Veg" />
+                              )}
+                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
+                            </li>
+                          ))}
+                          {s.items.length > 3 && (
+                            <li style={{ color: "var(--luxury-gold-dark)", fontSize: 11.5, fontWeight: 600, fontStyle: "italic" }}>
+                              +{s.items.length - 3} more items
+                            </li>
+                          )}
                         </ul>
                       )}
-                      {isStudent && (
-                        <span className={"pill " + (s.myRegistration?.status === "registered" || s.myRegistration?.status === "attended" ? "pill-green" : "pill-muted")}>
-                          {s.myRegistration?.status === "attended" ? "Attended" : s.myRegistration?.status === "registered" ? "Registered" : "Not registered"}
-                        </span>
-                      )}
+                      <div style={{ marginTop: "auto", paddingTop: 10, borderTop: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        {isStudent && (
+                          <span className={"pill " + (isAttended || isRegistered ? "pill-green" : "pill-muted")}>
+                            {isAttended ? "Attended" : isRegistered ? "Registered" : "Not registered"}
+                          </span>
+                        )}
+                        <Link to="/menu" style={{ fontSize: 12, fontWeight: 700, color: "var(--royal-navy)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          {isRegistered ? "Manage" : "View / Register"} &rarr;
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 );

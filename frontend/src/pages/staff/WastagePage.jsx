@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMyWastageQuery, useCreateWastageMutation } from "../../app/api.js";
 import { toast } from "sonner";
-import { Plus, Trash2, CheckCircle2, Clock, RotateCw } from "lucide-react";
+import { Plus, Trash2, CheckCircle2, Clock } from "lucide-react";
 
 const UNITS = ["kg", "g", "l", "ml", "piece", "packet"];
 const REASONS = ["leftover", "spoiled", "overcooked", "other"];
@@ -58,14 +58,9 @@ export default function WastagePage() {
           <h1>Food Wastage</h1>
           <p className="muted">Record leftover or spoiled items after each meal</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn-small" onClick={() => refetch()} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#64748b" }}>
-            <RotateCw size={13} /> Refresh
-          </button>
-          <button className="btn-primary" onClick={() => setShowForm(!showForm)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            {showForm ? "Cancel" : <><Plus size={16} /> Record Wastage</>}
-          </button>
-        </div>
+        <button className="btn-primary" onClick={() => setShowForm(!showForm)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          {showForm ? "Cancel" : <><Plus size={16} /> Record Wastage</>}
+        </button>
       </header>
 
       <section className="stat-grid" style={{ marginBottom: 20 }}>

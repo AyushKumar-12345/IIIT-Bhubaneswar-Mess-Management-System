@@ -22,9 +22,18 @@ function defaultRange() {
   return { start, end };
 }
 
+export function calculateSemesterFee(baseFee, mealCount) {
+  const count = Number(mealCount) || 3;
+  if (count >= 4) {
+    return baseFee === 25000 ? 30000 : Math.round(baseFee * 1.2);
+  }
+  return baseFee;
+}
+
 export async function getInfo(userId) {
   const feeSetting = await getSetting("groundFloor.fee", DEFAULT_FEE);
   const fee = Number(feeSetting) || DEFAULT_FEE;
+  const pricing = await getSetting("billing.perMealPrice", { breakfast: 40, lunch: 80, snacks: 30, dinner: 90 });
 
   const startSetting = await getSetting("semester.startDate", null);
   const endSetting = await getSetting("semester.endDate", null);
@@ -42,6 +51,9 @@ export async function getInfo(userId) {
 
   return {
     fee,
+    fee3Meals: fee,
+    fee4Meals: calculateSemesterFee(fee, 4),
+    perMealPrice: pricing,
     meals: ALL_MEALS,
     minMeals: 3,
     maxMeals: 4,
@@ -52,7 +64,7 @@ export async function getInfo(userId) {
   };
 }
 
-export async function enroll({ userId, meals, method = "upi" }) {
+export async function enroll({ userId, meals, method = "upi", provider: customProvider, providerRef: customRef }) {
   if (!Array.isArray(meals) || meals.length < 3) {
     throw new ApiError(400, "Choose at least 3 meals");
   }
@@ -62,14 +74,27 @@ export async function enroll({ userId, meals, method = "upi" }) {
   }
 
   const existing = await SemesterEnrollment.findOne({ user: userId, status: "active" });
-  if (existing) throw new ApiError(400, "Already enrolled in ground floor semester plan");
+  if (existing) {
+    // Supersede previous active enrollment so student can re-configure or upgrade plan
+    existing.status = "superseded";
+    await existing.save();
+  }
 
   const info = await getInfo(userId);
+  const calculatedFee = calculateSemesterFee(info.fee, cleaned.length);
 
-  const charge = provider.charge({ amount: info.fee, userId, billId: null });
+  const charge = customRef
+    ? {
+        provider: customProvider || "upi",
+        providerRef: customRef,
+        status: "success",
+        paidAt: new Date()
+      }
+    : provider.charge({ amount: calculatedFee, userId, billId: null });
+
   const payment = await Payment.create({
     user: userId,
-    amount: info.fee,
+    amount: calculatedFee,
     method,
     provider: charge.provider,
     providerRef: charge.providerRef,
@@ -81,7 +106,7 @@ export async function enroll({ userId, meals, method = "upi" }) {
   const enrollment = await SemesterEnrollment.create({
     user: userId,
     meals: cleaned,
-    amount: info.fee,
+    amount: calculatedFee,
     semesterStart: info.semesterStart,
     semesterEnd: info.semesterEnd,
     paidAt: charge.paidAt,

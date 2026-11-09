@@ -52,7 +52,7 @@ export default function AttendancePage() {
 
       {isLoading ? <p>Loading...</p> : records.length === 0 ? (
         <div className="card" style={{ textAlign: "center", padding: 40 }}>
-          <CheckCircle2 size={36} color="#0e7c66" style={{ margin: "0 auto 12px" }} />
+          <CheckCircle2 size={36} color="var(--luxury-emerald)" style={{ margin: "0 auto 12px" }} />
           <p className="muted">No attendance records yet. Register for a meal and check in at the counter.</p>
         </div>
       ) : (

@@ -3,14 +3,8 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useListMenusQuery, useDeleteMenuMutation } from "../../app/api.js";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Eye, EyeOff, ChefHat, Clock, Leaf, Flame } from "lucide-react";
-
-const VISUALS = {
-  breakfast: { bg: "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)", color: "#78350f", label: "Breakfast" },
-  lunch: { bg: "linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%)", color: "#065f46", label: "Lunch" },
-  snacks: { bg: "linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)", color: "#1e3a8a", label: "Snacks" },
-  dinner: { bg: "linear-gradient(135deg, #ede9fe 0%, #c4b5fd 100%)", color: "#4c1d95", label: "Dinner" }
-};
+import { Plus, Edit, Trash2, Eye, EyeOff, ChefHat, Clock, Leaf, Flame, Egg, Utensils, Coffee, Moon } from "lucide-react";
+import { getMealVisual } from "../../constants/mealVisuals.js";
 
 export default function MenuHistoryPage() {
   const user = useSelector((s) => s.auth.user);
@@ -77,20 +71,34 @@ export default function MenuHistoryPage() {
               </h2>
               <div className="meal-grid">
                 {(todayMenu.meals || []).map((meal) => {
-                  const visual = VISUALS[meal.category] || VISUALS.lunch;
+                  const visual = getMealVisual(meal.category);
                   return (
-                    <div key={meal.category} className="meal-card" style={{ padding: 0, overflow: "hidden" }}>
-                      <div style={{ background: visual.bg, padding: "12px 16px", color: visual.color }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6 }}>{visual.label}</div>
-                        <div style={{ fontSize: 15, fontWeight: 800, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                          <Clock size={13} /> {meal.startTime} - {meal.endTime}
+                    <div key={meal.category} className="meal-card" style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                      <div className="meal-card-visual" style={{ height: 110 }}>
+                        <img
+                          src={visual.image}
+                          alt={visual.label}
+                          className="meal-card-img"
+                          onError={(e) => { e.currentTarget.src = visual.fallbackUrl; }}
+                        />
+                        <div className="meal-card-overlay">
+                          <span className="meal-badge-floating">
+                            {meal.category === "breakfast" && <Egg size={12} />}
+                            {meal.category === "lunch" && <Utensils size={12} />}
+                            {meal.category === "snacks" && <Coffee size={12} />}
+                            {meal.category === "dinner" && <Moon size={12} />}
+                            {visual.label}
+                          </span>
+                          <span className="meal-badge-time">
+                            <Clock size={11} /> {meal.startTime} - {meal.endTime}
+                          </span>
                         </div>
                       </div>
-                      <div style={{ padding: 16 }}>
+                      <div style={{ padding: 14 }}>
                         {meal.items && meal.items.length > 0 ? (
-                          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 4 }}>
+                          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 5 }}>
                             {meal.items.map((item, i) => (
-                              <li key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14 }}>
+                              <li key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-secondary)" }}>
                                 {item.dietary === "veg" && <Leaf size={12} color="#0e7c66" />}
                                 {item.dietary === "non_veg" && <Flame size={12} color="#dc2626" />}
                                 {item.name}
@@ -110,25 +118,39 @@ export default function MenuHistoryPage() {
 
           {tomorrowMenu && (
             <div>
-              <h2 style={{ fontSize: 16, marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                <ChefHat size={18} color="#f5b942" /> Tomorrow's preparation
+              <h2 style={{ fontSize: 16, marginBottom: 12, display: "flex", alignItems: "center", gap: 6, color: "var(--royal-navy)" }}>
+                <ChefHat size={18} color="var(--royal-navy)" /> Tomorrow's preparation
               </h2>
               <div className="meal-grid">
                 {(tomorrowMenu.meals || []).map((meal) => {
-                  const visual = VISUALS[meal.category] || VISUALS.lunch;
+                  const visual = getMealVisual(meal.category);
                   return (
-                    <div key={meal.category} className="meal-card" style={{ padding: 0, overflow: "hidden" }}>
-                      <div style={{ background: visual.bg, padding: "12px 16px", color: visual.color }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6 }}>{visual.label}</div>
-                        <div style={{ fontSize: 15, fontWeight: 800, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                          <Clock size={13} /> {meal.startTime} - {meal.endTime}
+                    <div key={meal.category} className="meal-card" style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                      <div className="meal-card-visual" style={{ height: 110 }}>
+                        <img
+                          src={visual.image}
+                          alt={visual.label}
+                          className="meal-card-img"
+                          onError={(e) => { e.currentTarget.src = visual.fallbackUrl; }}
+                        />
+                        <div className="meal-card-overlay">
+                          <span className="meal-badge-floating">
+                            {meal.category === "breakfast" && <Egg size={12} />}
+                            {meal.category === "lunch" && <Utensils size={12} />}
+                            {meal.category === "snacks" && <Coffee size={12} />}
+                            {meal.category === "dinner" && <Moon size={12} />}
+                            {visual.label}
+                          </span>
+                          <span className="meal-badge-time">
+                            <Clock size={11} /> {meal.startTime} - {meal.endTime}
+                          </span>
                         </div>
                       </div>
-                      <div style={{ padding: 16 }}>
+                      <div style={{ padding: 14 }}>
                         {meal.items && meal.items.length > 0 ? (
-                          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 4 }}>
+                          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 5 }}>
                             {meal.items.map((item, i) => (
-                              <li key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14 }}>
+                              <li key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-secondary)" }}>
                                 {item.dietary === "veg" && <Leaf size={12} color="#0e7c66" />}
                                 {item.dietary === "non_veg" && <Flame size={12} color="#dc2626" />}
                                 {item.name}

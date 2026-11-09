@@ -1,4 +1,5 @@
-﻿import { Bill } from "../models/Bill.js";
+import mongoose from "mongoose";
+import { Bill } from "../models/Bill.js";
 import { Payment } from "../models/Payment.js";
 import { MealRegistration } from "../models/MealRegistration.js";
 import { SystemSetting } from "../models/SystemSetting.js";
@@ -50,19 +51,29 @@ async function aggregateUserMeals({ userId, from, to }) {
 }
 
 export async function getRunningBill(userId) {
+  const userObjId = new mongoose.Types.ObjectId(String(userId));
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
   const [counts, prices, paymentAgg, adjAgg] = await Promise.all([
-    aggregateUserMeals({ userId, from: monthStart, to: nextMonth }),
+    aggregateUserMeals({ userId: userObjId, from: monthStart, to: nextMonth }),
     getPricing(),
     Payment.aggregate([
-      { $match: { user: userId, status: "success" } },
+      {
+        $match: {
+          user: userObjId,
+          status: "success",
+          $or: [
+            { paidAt: { $gte: monthStart, $lt: nextMonth } },
+            { createdAt: { $gte: monthStart, $lt: nextMonth } }
+          ]
+        }
+      },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]),
     BillingAdjustment.aggregate([
-      { $match: { user: userId, createdAt: { $gte: monthStart, $lt: nextMonth } } },
+      { $match: { user: userObjId, createdAt: { $gte: monthStart, $lt: nextMonth } } },
       { $group: {
           _id: null,
           credits: { $sum: { $cond: [{ $eq: ["$type", "credit"] }, "$amount", 0] } },

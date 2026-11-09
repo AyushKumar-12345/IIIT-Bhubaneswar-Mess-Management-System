@@ -83,7 +83,7 @@ export default function AppLayout() {
       <div className="app-mobile-bar">
         <Link to="/dashboard" className="app-mobile-brand">
           <img src="/favicon.svg" alt="" width="28" height="28" />
-          <span>MESSMATE</span>
+          <span>IIIT MESS</span>
         </Link>
         <button className="app-mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}
@@ -95,7 +95,7 @@ export default function AppLayout() {
       <aside className={"app-sidebar " + (mobileOpen ? "is-open" : "")}>
         <Link to="/dashboard" className="app-brand" onClick={close}>
           <img src="/favicon.svg" alt="" width="32" height="32" />
-          <span>MESSMATE</span>
+          <span>IIIT MESS</span>
         </Link>
 
         <div className="app-role-badge">

@@ -25,7 +25,7 @@ const mealSlotSchema = new mongoose.Schema(
 
 const mealMenuSchema = new mongoose.Schema(
   {
-    date: { type: Date, required: true, index: true },
+    date: { type: Date, required: true },
     meals: { type: [mealSlotSchema], default: [] },
     published: { type: Boolean, default: false, index: true },
     publishedAt: { type: Date },

@@ -33,6 +33,20 @@ export async function payDirect({ userId, amount, method }) {
   });
 }
 
+export async function recordVerifiedPayment({ userId, amount, method = "upi", provider = "upi", providerRef, metadata = {} }) {
+  const running = await billingService.getRunningBill(userId);
+  return Payment.create({
+    user: userId,
+    amount,
+    method,
+    provider,
+    providerRef,
+    status: "success",
+    paidAt: new Date(),
+    metadata: { ...metadata, month: running.month, year: running.year }
+  });
+}
+
 export async function initiatePayment({ userId, billId, amount, method }) {
   const bill = await Bill.findById(billId);
   if (!bill) throw new ApiError(404, "Bill not found");
@@ -70,6 +84,10 @@ export async function listAllPayments(query) {
   ]);
   return { items, meta: buildMeta({ page, limit, total }) };
 }
+
+// Aliases for controller compatibility
+export const myPayments = listMyPayments;
+export const allPayments = listAllPayments;
 
 export async function getPayment(paymentId, { userId, role }) {
   const p = await Payment.findById(paymentId).populate("bill", "month year total").lean();

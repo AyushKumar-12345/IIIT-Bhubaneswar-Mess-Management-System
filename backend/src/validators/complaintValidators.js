@@ -8,7 +8,7 @@ const categories = [
 export const createComplaintSchema = z.object({
   category: z.enum(categories),
   title: z.string().min(3).max(150),
-  description: z.string().min(10).max(3000),
+  description: z.string().min(3).max(3000),
   priority: z.enum(["low","medium","high","urgent"]).optional().default("medium"),
   images: z.array(z.string().url()).max(5).optional().default([])
 });

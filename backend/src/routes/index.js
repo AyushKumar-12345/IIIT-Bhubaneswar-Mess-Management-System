@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { sendSuccess } from "../utils/apiResponse.js";
 import authRoutes from "./authRoutes.js";
 import menuRoutes from "./menuRoutes.js";
@@ -23,8 +23,8 @@ import groundFloorRoutes from "./groundFloorRoutes.js";
 const router = Router();
 
 router.get("/", (req, res) => sendSuccess(res, {
-  message: "MESSMATE API v1",
-  data: { name: "MESSMATE", version: "1.0.0" }
+  message: "IIIT Bhubaneswar Mess Management API v1",
+  data: { name: "IIIT Bhubaneswar Mess Management", version: "1.0.0" }
 }));
 
 router.use("/auth", authRoutes);

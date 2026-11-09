@@ -53,7 +53,7 @@ export default function ScanPage() {
                 style={{ textAlign: "left", cursor: "pointer", border: "1px solid #e2e8e6", background: "white", padding: 18, borderRadius: 12 }}>
                 <h3 style={{ textTransform: "capitalize", margin: "0 0 4px" }}>{s.category}</h3>
                 <p className="muted" style={{ margin: "0 0 12px", fontSize: 13 }}>{s.startTime} - {s.endTime}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#0e7c66", fontWeight: 600 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--royal-navy)", fontWeight: 700 }}>
                   <Users size={14} /> Take attendance
                 </div>
               </button>
@@ -67,7 +67,7 @@ export default function ScanPage() {
   return (
     <div className="page">
       <header className="page-header">
-        <button onClick={() => setSelectedSession(null)} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: "#64748b", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 8 }}>
+        <button onClick={() => setSelectedSession(null)} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: "var(--royal-navy)", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0, marginBottom: 8 }}>
           <ChevronLeft size={14} /> Back to sessions
         </button>
         <h1 style={{ textTransform: "capitalize" }}>{selectedSession.category} Attendance</h1>

@@ -205,7 +205,7 @@ export default function MenuFormPage() {
           <button type="submit" className="btn-primary" disabled={busy || creating || updating}>
             {busy || creating || updating ? "Saving..." : (isEdit ? "Update Menu" : "Create Menu")}
           </button>
-          <Link to="/admin/menus" className="btn-small" style={{ background: "#64748b", textDecoration: "none", padding: "10px 16px", display: "inline-flex", alignItems: "center" }}>
+          <Link to="/admin/menus" className="btn-small" style={{ background: "#ffffff", color: "var(--text-primary)", border: "1px solid var(--border-color)", textDecoration: "none", padding: "10px 16px", display: "inline-flex", alignItems: "center" }}>
             Cancel
           </Link>
         </div>

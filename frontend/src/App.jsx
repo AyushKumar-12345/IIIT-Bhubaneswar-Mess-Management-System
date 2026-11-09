@@ -45,8 +45,13 @@ export default function App() {
 
   if (!hydrated) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#f6f8f7" }}>
-        <div style={{ color: "#64748b", fontSize: 14 }}>Loading...</div>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "linear-gradient(135deg, #0a1128 0%, #162447 100%)" }}>
+        <div style={{ textAlign: "center" }}>
+          <div className="auth-spinner" style={{ margin: "0 auto 16px", borderColor: "rgba(197, 160, 89, 0.25)", borderTopColor: "#dfb76c" }} />
+          <div style={{ color: "#dfb76c", fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Loading IIIT Mess Portal...
+          </div>
+        </div>
       </div>
     );
   }

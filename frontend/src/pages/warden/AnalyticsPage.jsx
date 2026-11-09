@@ -23,12 +23,12 @@ export default function AnalyticsPage() {
 
         {responses === 0 ? (
           <div className="card" style={{ textAlign: "center", padding: 32 }}>
-            <MessageSquare size={32} color="#64748b" style={{ margin: "0 auto 12px" }} />
+            <MessageSquare size={32} color="#000000" style={{ margin: "0 auto 12px" }} />
             <h3 style={{ margin: "0 0 6px" }}>No feedback yet</h3>
             <p className="muted" style={{ margin: "0 auto", maxWidth: 460, fontSize: 13 }}>
               Students rate meals after attending them. Once ratings come in, average scores appear here.
             </p>
-            <ol style={{ textAlign: "left", maxWidth: 320, margin: "16px auto 0", paddingLeft: 20, fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
+            <ol style={{ textAlign: "left", maxWidth: 320, margin: "16px auto 0", paddingLeft: 20, fontSize: 13, color: "#374151", lineHeight: 1.7 }}>
               <li>Staff marks students present at a meal</li>
               <li>Students see the meal in their Feedback page</li>
               <li>They rate taste, quality, hygiene, quantity, overall</li>
@@ -37,7 +37,7 @@ export default function AnalyticsPage() {
         ) : (
           <>
             <div className="stat-grid">
-              <div className="stat-card" style={{ borderLeft: "3px solid #0e7c66" }}>
+              <div className="stat-card" style={{ borderLeft: "4px solid var(--luxury-gold)" }}>
                 <span>Overall</span>
                 <strong>{(stats.overall || 0).toFixed(1)}</strong>
                 <small>{responses} response{responses !== 1 ? "s" : ""}</small>
@@ -62,7 +62,7 @@ export default function AnalyticsPage() {
 
             {recentFeedback.length > 0 && (
               <div style={{ marginTop: 24 }}>
-                <h3 style={{ fontSize: 14, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5, color: "#64748b" }}>
+                <h3 style={{ fontSize: 14, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5, color: "var(--royal-navy)", fontWeight: 700 }}>
                   Recent comments
                 </h3>
                 <div className="list">
@@ -70,7 +70,7 @@ export default function AnalyticsPage() {
                     <div key={f._id} className="card" style={{ marginBottom: 10, padding: 14 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                         <div style={{ flex: 1 }}>
-                          <strong style={{ fontSize: 13 }}>{f.user?.name || "Student"}</strong>
+                          <strong style={{ fontSize: 13, color: "var(--royal-navy)" }}>{f.user?.name || "Student"}</strong>
                           <span className="muted" style={{ fontSize: 12, marginLeft: 8, textTransform: "capitalize" }}>
                             {f.session?.category || "meal"}
                           </span>
@@ -78,11 +78,11 @@ export default function AnalyticsPage() {
                             {f.createdAt && new Date(f.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                           </span>
                         </div>
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "#a06800", fontWeight: 700, fontSize: 13, background: "rgba(245,185,66,0.12)", padding: "3px 8px", borderRadius: 6 }}>
-                          <Star size={12} fill="#a06800" /> {f.overall}/5
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "var(--luxury-gold-dark)", fontWeight: 700, fontSize: 13, background: "rgba(197, 160, 89, 0.1)", padding: "3px 8px", borderRadius: 6, border: "1px solid rgba(197, 160, 89, 0.25)" }}>
+                          <Star size={12} fill="var(--luxury-gold)" /> {f.overall}/5
                         </div>
                       </div>
-                      {f.comment && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#475569" }}>{f.comment}</p>}
+                      {f.comment && <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--text-secondary)" }}>{f.comment}</p>}
                     </div>
                   ))}
                 </div>
@@ -96,7 +96,7 @@ export default function AnalyticsPage() {
         <h2 style={{ fontSize: 18, marginBottom: 12 }}>Food wastage</h2>
         {wastage.length === 0 ? (
           <div className="card" style={{ textAlign: "center", padding: 32 }}>
-            <TrendingDown size={32} color="#64748b" style={{ margin: "0 auto 12px" }} />
+            <TrendingDown size={32} color="#000000" style={{ margin: "0 auto 12px" }} />
             <h3 style={{ margin: "0 0 6px" }}>No wastage recorded yet</h3>
             <p className="muted" style={{ margin: 0, fontSize: 13 }}>
               Staff can log wastage from the Wastage page after serving.

@@ -188,7 +188,7 @@ export default function FeedbackPage() {
             <div style={{ display: "grid", gap: 14 }}>
               {RATING_FIELDS.map(({ key, label }) => (
                 <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#0b1f3a" }}>{label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--royal-navy)" }}>{label}</span>
                   <StarPicker value={form[key]} onChange={(v) => setForm({ ...form, [key]: v })} />
                 </div>
               ))}

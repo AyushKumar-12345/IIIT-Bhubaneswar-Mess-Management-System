@@ -28,6 +28,9 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       result = await rawBaseQuery(args, api, extraOptions);
     } else {
       api.dispatch({ type: "auth/clearUser" });
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login") && !window.location.pathname.startsWith("/register")) {
+        window.location.href = "/login";
+      }
     }
   }
   return result;
@@ -36,7 +39,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const api = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Auth","Menu","MenuList","Registration","Attendance","Bill","Payment","Complaint","Leave","Refund","User","Announcement","Feedback","Inventory","InventoryRequest","Wastage","Setting"],
+  tagTypes: ["Auth","Menu","MenuList","Registration","Attendance","Bill","Payment","Complaint","Leave","Refund","User","Announcement","Notification","Feedback","Inventory","InventoryRequest","Wastage","Setting"],
   endpoints: (builder) => ({
     me: builder.query({ query: () => "/auth/me", providesTags: ["Auth"] }),
     login: builder.mutation({ query: (body) => ({ url: "/auth/login", method: "POST", body }), invalidatesTags: ["Auth"] }),
@@ -72,10 +75,10 @@ export const api = createApi({
     sessionRegistrations: builder.query({ query: (sessionId) => "/registrations/session/" + sessionId, providesTags: ["Registration"] }),
 
     generateQr: builder.mutation({ query: (body) => ({ url: "/attendance/qr/generate", method: "POST", body }) }),
-    verifyQr: builder.mutation({ query: (body) => ({ url: "/attendance/qr/verify", method: "POST", body }), invalidatesTags: ["Attendance"] }),
+    verifyQr: builder.mutation({ query: (body) => ({ url: "/attendance/qr/verify", method: "POST", body }), invalidatesTags: ["Attendance", "Registration", "Menu", "Auth"] }),
     manualCheckIn: builder.mutation({
       query: (body) => ({ url: "/attendance/manual", method: "POST", body }),
-      invalidatesTags: ["Attendance","Registration"]
+      invalidatesTags: ["Attendance", "Registration", "Menu", "Auth"]
     }),
     myAttendance: builder.query({ query: () => "/attendance/my", providesTags: ["Attendance"] }),
 
@@ -83,16 +86,16 @@ export const api = createApi({
     billingDebug: builder.query({ query: () => "/billing/debug", providesTags: ["Bill","Payment"] }),
     resetPayments: builder.mutation({
       query: () => ({ url: "/billing/reset-payments", method: "POST" }),
-      invalidatesTags: ["Bill","Payment"]
+      invalidatesTags: ["Bill","Payment","Auth"]
     }),
     myBills: builder.query({ query: () => "/billing/my", providesTags: ["Bill"] }),
     payDirect: builder.mutation({
       query: (body) => ({ url: "/payments/pay", method: "POST", body }),
-      invalidatesTags: ["Bill","Payment"]
+      invalidatesTags: ["Bill", "Payment", "Auth"]
     }),
     initiatePayment: builder.mutation({
       query: (body) => ({ url: "/payments/initiate", method: "POST", body }),
-      invalidatesTags: ["Bill","Payment"]
+      invalidatesTags: ["Bill", "Payment", "Auth"]
     }),
     myPayments: builder.query({ query: () => "/payments/my", providesTags: ["Payment"] }),
     allPayments: builder.query({ query: (params) => ({ url: "/payments", params }), providesTags: ["Payment"] }),
@@ -116,7 +119,12 @@ export const api = createApi({
     setUserStatus: builder.mutation({ query: ({ id, status }) => ({ url: "/users/" + id + "/status", method: "PATCH", body: { status } }), invalidatesTags: ["User"] }),
     listAnnouncements: builder.query({ query: () => "/announcements", providesTags: ["Announcement"] }),
     createAnnouncement: builder.mutation({ query: (body) => ({ url: "/announcements", method: "POST", body }), invalidatesTags: ["Announcement"] }),
-    myNotifications: builder.query({ query: () => "/notifications/my", providesTags: ["Auth"] }),
+    myNotifications: builder.query({ query: () => "/notifications/my", providesTags: ["Notification"] }),
+    markNotificationRead: builder.mutation({ query: (id) => ({ url: "/notifications/" + id + "/read", method: "PATCH" }), invalidatesTags: ["Notification", "Auth"] }),
+    markAllNotificationsRead: builder.mutation({ query: () => ({ url: "/notifications/mark-all-read", method: "POST" }), invalidatesTags: ["Notification", "Auth"] }),
+    clearReadNotifications: builder.mutation({ query: () => ({ url: "/notifications/clear-read", method: "DELETE" }), invalidatesTags: ["Notification", "Auth"] }),
+    clearAllNotifications: builder.mutation({ query: () => ({ url: "/notifications/clear-all", method: "DELETE" }), invalidatesTags: ["Notification", "Auth"] }),
+    deleteNotification: builder.mutation({ query: (id) => ({ url: "/notifications/" + id, method: "DELETE" }), invalidatesTags: ["Notification", "Auth"] }),
 
     submitFeedback: builder.mutation({ query: (body) => ({ url: "/feedback", method: "POST", body }), invalidatesTags: ["Feedback"] }),
     myFeedback: builder.query({ query: () => "/feedback/my", providesTags: ["Feedback"] }),
@@ -155,7 +163,8 @@ export const {
   useMyLeavesQuery, useCreateLeaveMutation, useAllLeavesQuery, useDecideLeaveMutation, useCancelRequestMutation,
   useListUsersQuery, useSetUserStatusMutation,
   useListAnnouncementsQuery, useCreateAnnouncementMutation,
-  useMyNotificationsQuery,
+  useMyNotificationsQuery, useMarkNotificationReadMutation, useMarkAllNotificationsReadMutation,
+  useClearReadNotificationsMutation, useClearAllNotificationsMutation, useDeleteNotificationMutation,
   useSubmitFeedbackMutation, useMyFeedbackQuery, useAllFeedbackQuery, useFeedbackStatsQuery,
   useListWastageQuery, useMyWastageQuery, useCreateWastageMutation, useWastageStatsQuery,
   useListInventoryQuery, useCreateInventoryMutation, useRecordStockMutation,

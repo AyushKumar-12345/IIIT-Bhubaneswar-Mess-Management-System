@@ -24,34 +24,24 @@ export default function PricingPage() {
   const [gfFee, setGfFee] = useState(25000);
   const [loaded, setLoaded] = useState(false);
 
-  if (user?.role !== "admin") {
-    return (
-      <div className="page" style={{ maxWidth: 500, margin: "60px auto", textAlign: "center" }}>
-        <div className="card" style={{ padding: 40 }}>
-          <ShieldAlert size={40} color="#dc2626" style={{ margin: "0 auto 16px" }} />
-          <h2 style={{ margin: "0 0 8px", fontSize: 20 }}>Admin access only</h2>
-          <p className="muted" style={{ margin: 0 }}>
-            Only the Admin (super role) can change mess prices. Mess Secretaries do not have this permission.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const applySettings = (settingsList) => {
+    if (!settingsList) return;
+    const pm = settingsList.find((x) => x.key === "billing.perMealPrice");
+    const gf = settingsList.find((x) => x.key === "groundFloor.fee");
+    if (pm && pm.value) {
+      setPerMeal({
+        breakfast: Number(pm.value.breakfast ?? 40),
+        lunch: Number(pm.value.lunch ?? 80),
+        snacks: Number(pm.value.snacks ?? 30),
+        dinner: Number(pm.value.dinner ?? 90)
+      });
+    }
+    if (gf && gf.value) setGfFee(Number(gf.value) || 25000);
+  };
 
   useEffect(() => {
     if (data?.data?.settings && !loaded) {
-      const settings = data.data.settings;
-      const pm = settings.find((x) => x.key === "billing.perMealPrice");
-      const gf = settings.find((x) => x.key === "groundFloor.fee");
-      if (pm && pm.value) {
-        setPerMeal({
-          breakfast: Number(pm.value.breakfast ?? 40),
-          lunch: Number(pm.value.lunch ?? 80),
-          snacks: Number(pm.value.snacks ?? 30),
-          dinner: Number(pm.value.dinner ?? 90)
-        });
-      }
-      if (gf && gf.value) setGfFee(Number(gf.value) || 25000);
+      applySettings(data.data.settings);
       setLoaded(true);
     }
   }, [data, loaded]);
@@ -146,7 +136,7 @@ export default function PricingPage() {
                       step="1"
                       value={perMeal[key]}
                       onChange={(e) => updateMeal(key, e.target.value)}
-                      style={{ width: "100%", padding: "8px 10px", border: "1px solid #e2e8e6", borderRadius: 8, fontSize: 15, fontWeight: 600, color: "#0b1f3a" }}
+                      style={{ width: "100%", padding: "8px 10px", border: "1px solid #e2e8e6", borderRadius: 8, fontSize: 15, fontWeight: 600, color: "#000000" }}
                     />
                   </div>
                 </label>
@@ -155,42 +145,39 @@ export default function PricingPage() {
           })}
         </div>
 
-        <div style={{ marginTop: 16, padding: "10px 14px", background: "#f8fafb", borderRadius: 8, fontSize: 12, color: "#64748b" }}>
-          If a student eats all 4 meals in one day, they would pay <strong style={{ color: "#0b1f3a" }}>Rs. {totalMonthly}</strong>.
+        <div style={{ marginTop: 16, padding: "10px 14px", background: "#f8fafb", borderRadius: 8, fontSize: 12, color: "#4b5563" }}>
+          If a student eats all 4 meals in one day, they would pay <strong style={{ color: "#000000" }}>Rs. {totalMonthly}</strong>.
         </div>
       </section>
 
-      <section className="card" style={{ marginBottom: 20, borderLeft: "3px solid #a06800" }}>
+      <section className="card" style={{ marginBottom: 20, borderLeft: "3px solid var(--luxury-gold)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-          <Building2 size={18} color="#a06800" />
-          <h2 style={{ margin: 0, fontSize: 16 }}>Ground Floor - One-Time Semester Fee</h2>
+          <Building2 size={18} color="var(--royal-navy)" />
+          <h2 style={{ margin: 0, fontSize: 16, color: "var(--royal-navy)" }}>Ground Floor - One-Time Semester Fee</h2>
         </div>
-        <p style={{ margin: "4px 0 16px", fontSize: 12, color: "#64748b" }}>
+        <p style={{ margin: "4px 0 16px", fontSize: 12, color: "var(--text-secondary)" }}>
           Student pays this once to enroll in the ground floor semester plan. Min 3 meals required at enrollment.
         </p>
 
         <label style={{ display: "block", maxWidth: 320 }}>
-          <div style={{ fontSize: 11, textTransform: "uppercase", color: "#64748b", fontWeight: 600, marginBottom: 6 }}>Semester Fee (INR)</div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", color: "var(--text-muted)", fontWeight: 600, marginBottom: 6 }}>Semester Fee (INR)</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
-            <IndianRupee size={20} color="#a06800" />
+            <IndianRupee size={20} color="var(--royal-navy)" />
             <input
               type="number"
               min="0"
               step="100"
               value={gfFee}
               onChange={(e) => setGfFee(e.target.value === "" ? "" : Number(e.target.value))}
-              style={{ flex: 1, padding: "12px 14px", border: "2px solid #f5b942", borderRadius: 10, fontSize: 20, fontWeight: 800, color: "#0b1f3a" }}
+              style={{ flex: 1, padding: "12px 14px", border: "2px solid var(--royal-navy)", borderRadius: 10, fontSize: 20, fontWeight: 800, color: "var(--royal-navy)" }}
             />
           </div>
         </label>
       </section>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <button className="btn-primary" onClick={save} disabled={saving} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", fontSize: 15 }}>
+        <button className="landing-btn landing-btn-solid" onClick={save} disabled={saving} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", fontSize: 15 }}>
           <Save size={16} /> {saving ? "Saving..." : "Save Prices"}
-        </button>
-        <button className="btn-small" onClick={() => refetch()} style={{ background: "#64748b" }}>
-          Refresh
         </button>
       </div>
 

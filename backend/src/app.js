@@ -19,7 +19,7 @@ applySecurity(app);
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "MESSMATE backend is healthy",
+    message: "IIIT Bhubaneswar Mess Management backend is healthy",
     data: { environment: env.NODE_ENV, uptimeSeconds: Math.round(process.uptime()) }
   });
 });
