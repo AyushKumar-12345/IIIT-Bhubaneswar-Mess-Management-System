@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { protect, authorize } from "../middleware/auth.js";
+import * as ctrl from "../controllers/inventoryController.js";
+const router = Router();
+router.use(protect);
+router.get("/", authorize("mess_committee", "admin", "staff"), ctrl.list);
+router.post("/", authorize("mess_committee", "admin"), ctrl.create);
+router.post("/:id/stock", authorize("mess_committee", "admin", "staff"), ctrl.stock);
+router.get("/:id/movements", authorize("mess_committee", "admin"), ctrl.movements);
+export default router;
